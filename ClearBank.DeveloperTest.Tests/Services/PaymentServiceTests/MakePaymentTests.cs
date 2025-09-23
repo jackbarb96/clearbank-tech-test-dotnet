@@ -1,4 +1,4 @@
-﻿using ClearBank.DeveloperTest.Types;
+﻿using ClearBank.DeveloperTest.Domain.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
@@ -6,22 +6,29 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
     [TestClass]
     public class MakePaymentTests : TestBase
     {
-        //TODO: Untestable, need to able to mock account details, will fail on AllowedPaymentSchemes check
         [TestMethod]
-        [Ignore]
         [DataRow(PaymentScheme.Bacs)]
         [DataRow(PaymentScheme.FasterPayments)]
         [DataRow(PaymentScheme.Chaps)]
         public void ShouldReturnSuccess_WhenPaymentIsValid(PaymentScheme paymentScheme)
         {
             // Arrange
-            Initialise();
             var request = new MakePaymentRequest
             {
                 Amount = 100,
                 DebtorAccountNumber = "12345678",
                 PaymentScheme = paymentScheme
             };
+
+            var mockAccount = new Account
+            {
+                AccountNumber = "12345678",
+                Balance = 500,
+                AllowedPaymentSchemes = AllowedPaymentSchemes.Bacs | AllowedPaymentSchemes.Chaps | AllowedPaymentSchemes.FasterPayments,
+                Status = AccountStatus.Live
+            };
+
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
 
             // Act
             var result = paymentService.MakePayment(request);
@@ -30,22 +37,29 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
             Assert.IsTrue(result.Success);
         }
 
-        //TODO: Untestable, need to able to mock account details
         [TestMethod]
-        [Ignore]
         [DataRow(PaymentScheme.FasterPayments, AllowedPaymentSchemes.Chaps | AllowedPaymentSchemes.Bacs)]
         [DataRow(PaymentScheme.Bacs, AllowedPaymentSchemes.FasterPayments | AllowedPaymentSchemes.Chaps)]
         [DataRow(PaymentScheme.Chaps, AllowedPaymentSchemes.FasterPayments | AllowedPaymentSchemes.Bacs)]
         public void ShouldReturnFailure_WhenPaymentSchemeNotAllowed(PaymentScheme paymentScheme, AllowedPaymentSchemes allowedPaymentSchemes)
         {
             // Arrange
-            Initialise();
             var request = new MakePaymentRequest
             {
                 Amount = 100,
                 DebtorAccountNumber = "12345678",
-                PaymentScheme = PaymentScheme.Bacs
+                PaymentScheme = paymentScheme
             };
+
+            var mockAccount = new Account
+            {
+                AccountNumber = "12345678",
+                Balance = 500,
+                AllowedPaymentSchemes = allowedPaymentSchemes,
+                Status = AccountStatus.Live
+            };
+
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
 
             // Act
             var result = paymentService.MakePayment(request);
@@ -54,13 +68,10 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
             Assert.IsFalse(result.Success);
         }
 
-        //TODO: Untestable, need to able to mock account details
         [TestMethod]
-        [Ignore]
         public void ShouldReturnFailure_WhenInsufficientFunds_ForFasterPayments()
         {
             // Arrange
-            Initialise();
             var request = new MakePaymentRequest
             {
                 Amount = 10000,
@@ -68,6 +79,16 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
                 PaymentScheme = PaymentScheme.FasterPayments
             };
 
+            var mockAccount = new Account
+            {
+                AccountNumber = "12345678",
+                Balance = 500,
+                AllowedPaymentSchemes = AllowedPaymentSchemes.FasterPayments,
+                Status = AccountStatus.Live
+            };
+
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
+
             // Act
             var result = paymentService.MakePayment(request);
 
@@ -75,21 +96,53 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
             Assert.IsFalse(result.Success);
         }
 
-        // TODO: Untestable, need to able to mock account details
         [TestMethod]
-        [Ignore]
-        public void ShouldReturnFailure_WhenAccountDoesNotExist()
+        [DataRow(PaymentScheme.Bacs)]
+        [DataRow(PaymentScheme.FasterPayments)]
+        [DataRow(PaymentScheme.Chaps)]
+        public void ShouldReturnFailure_WhenAccountIsNull(PaymentScheme paymentScheme)
         {
             // Arrange
-            Initialise();
             var request = new MakePaymentRequest
             {
                 Amount = 100,
-                DebtorAccountNumber = "00000000",
-                PaymentScheme = PaymentScheme.Bacs
+                DebtorAccountNumber = "12345678",
+                PaymentScheme = paymentScheme
             };
+
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = false });
+
             // Act
             var result = paymentService.MakePayment(request);
+
+            // Assert
+            Assert.IsFalse(result.Success);
+        }
+
+        [TestMethod]
+        public void ShouldReturnFailure_WhenAccountStatusNotLive_ForChaps()
+        {
+            // Arrange
+            var request = new MakePaymentRequest
+            {
+                Amount = 100,
+                DebtorAccountNumber = "12345678",
+                PaymentScheme = PaymentScheme.Chaps
+            };
+
+            var mockAccount = new Account
+            {
+                AccountNumber = "12345678",
+                Balance = 500,
+                AllowedPaymentSchemes = AllowedPaymentSchemes.Chaps,
+                Status = AccountStatus.Disabled
+            };
+
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
+
+            // Act
+            var result = paymentService.MakePayment(request);
+
             // Assert
             Assert.IsFalse(result.Success);
         }

@@ -1,4 +1,5 @@
-﻿using ClearBank.DeveloperTest.Domain.Types;
+﻿using ClearBank.DeveloperTest.Domain.Enums;
+using ClearBank.DeveloperTest.Domain.Types;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
@@ -28,7 +29,7 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
                 Status = AccountStatus.Live
             };
 
-            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult<Account> { Success = true, Result = mockAccount });
 
             // Act
             var result = paymentService.MakePayment(request);
@@ -59,7 +60,7 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
                 Status = AccountStatus.Live
             };
 
-            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult<Account> { Success = true, Result = mockAccount });
 
             // Act
             var result = paymentService.MakePayment(request);
@@ -87,7 +88,7 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
                 Status = AccountStatus.Live
             };
 
-            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult<Account> { Success = true, Result = mockAccount });
 
             // Act
             var result = paymentService.MakePayment(request);
@@ -110,7 +111,7 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
                 PaymentScheme = paymentScheme
             };
 
-            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = false });
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult<Account> { Success = false });
 
             // Act
             var result = paymentService.MakePayment(request);
@@ -138,7 +139,7 @@ namespace ClearBank.DeveloperTest.Tests.Services.PaymentServiceTests
                 Status = AccountStatus.Disabled
             };
 
-            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult { Success = true, Result = mockAccount });
+            mockAccountService.Setup(x => x.GetAccount("12345678")).Returns(new ServiceResult<Account> { Success = true, Result = mockAccount });
 
             // Act
             var result = paymentService.MakePayment(request);

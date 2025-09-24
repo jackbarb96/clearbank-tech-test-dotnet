@@ -1,9 +1,7 @@
 ﻿namespace ClearBank.DeveloperTest.Domain.Types
 {
-    public class ServiceResult
+    public class ServiceResult<T> : BaseServiceResult
     {
-        public bool Success { get; set; }
-        public string? ErrorMessage { get; set; }
-        public object? Result { get; set; }
+        public T? Result { get; set; }
     }
 }

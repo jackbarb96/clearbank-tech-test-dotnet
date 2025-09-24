@@ -1,10 +1,13 @@
-﻿using ClearBank.DeveloperTest.Domain.Types;
+﻿using ClearBank.DeveloperTest.Domain.Enums;
+using ClearBank.DeveloperTest.Domain.Types;
 using ClearBank.DeveloperTest.Repository.Interfaces;
 
 namespace ClearBank.DeveloperTest.Data
 {
     public class AccountDataStore : IAccountDataStore
     {
+        public DataStoreType DataStoreType => DataStoreType.Primary;
+
         public Account GetAccount(string accountNumber)
         {
             // Access database to retrieve account, code removed for brevity 

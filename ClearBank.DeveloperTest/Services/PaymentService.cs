@@ -1,4 +1,5 @@
-﻿using ClearBank.DeveloperTest.Domain.Types;
+﻿using ClearBank.DeveloperTest.Domain.Enums;
+using ClearBank.DeveloperTest.Domain.Types;
 using System;
 
 namespace ClearBank.DeveloperTest.Services
@@ -21,7 +22,7 @@ namespace ClearBank.DeveloperTest.Services
                 return new MakePaymentResult { Success = false };
             }
 
-            var account = accountResult.Result as Account;
+            var account = accountResult.Result;
 
             var result = new MakePaymentResult();
 

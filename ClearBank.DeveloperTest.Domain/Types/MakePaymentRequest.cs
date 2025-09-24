@@ -1,4 +1,4 @@
-﻿using System;
+﻿using ClearBank.DeveloperTest.Domain.Enums;
 
 namespace ClearBank.DeveloperTest.Domain.Types
 {
